@@ -1,73 +1,217 @@
-# Welcome to your Lovable project
+# Kaya AI: Intelligent Career Navigator
 
-## Project info
+A sophisticated AI-powered resume analysis platform that uses a multi-LLM ensemble approach to provide comprehensive career insights.
 
-**URL**: https://lovable.dev/projects/7e91b56e-34e9-48ad-904d-4cef11466777
+## 🎯 Features
 
-## How can I edit this code?
+- **AI-Powered Analysis**: Multi-LLM ensemble (Gemini, ChatGPT, Grok, Claude) for accurate resume evaluation
+- **Intelligent Scoring**: 100-point internal scoring system with outlier detection and adaptive learning
+- **Gap Analysis**: Detailed comparison between your resume and ideal resume for target roles
+- **Personalized Recommendations**: Actionable insights mapped to identified gaps
+- **User Feedback Loop**: Continuous improvement through user feedback mechanism
 
-There are several ways of editing your application.
+## 🏗️ Architecture
 
-**Use Lovable**
+### Frontend (Implemented)
+- **Framework**: React + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Features**:
+  - Hero landing page with compelling value proposition
+  - Multi-step input form (Company/Industry/Roles/Resume Upload)
+  - Animated processing screen with real-time progress
+  - Comprehensive results dashboard with tabbed interface
+  - User feedback component for continuous improvement
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7e91b56e-34e9-48ad-904d-4cef11466777) and start prompting.
+### Backend (API Abstraction)
 
-Changes made via Lovable will be committed automatically to this repo.
+The application communicates with two main API endpoints that must be implemented:
 
-**Use your preferred IDE**
+#### 1. `/api/analyze-resume` (POST)
+This endpoint executes the **Three-Stage Multi-LLM Ensemble Approach**:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Stage 1: Reference Resume Generation**
+- Generate "ideal" resume based on user's role/company input
+- **LLM Priority**: Gemini → ChatGPT → Grok
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Stage 2: User Resume Evaluation**
+- Three LLMs rate user's resume on 100-point internal scale
+- **Scoring Logic**:
+  - If scores within 20% difference: Average all scores
+  - If two similar, one outlier: Average similar scores
+  - If all far apart: Use highest-priority LLM score (Gemini)
 
-Follow these steps:
+**Stage 3: Suggestion Synthesis**
+- Final score synthesis and recommendations
+- **LLM Priority**: Claude → ChatGPT → Gemini → Grok
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+**Request Body**:
+```json
+{
+  "company": "string",
+  "industry": "string",
+  "roles": ["string"],
+  "resumeFile": "base64_encoded_file"
+}
 ```
 
-**Edit a file directly in GitHub**
+**Response**:
+```json
+{
+  "overallScore": "number (0-10)",
+  "analysis": {
+    "geminiScore": "number (0-100)",
+    "chatGPTScore": "number (0-100)",
+    "grokScore": "number (0-100)",
+    "averageScore": "number",
+    "strengths": ["string"],
+    "weaknesses": ["string"]
+  },
+  "idealResume": {
+    "summary": "string",
+    "experience": ["string"],
+    "skills": ["string"]
+  },
+  "gaps": [
+    {
+      "category": "string",
+      "severity": "high|medium|low",
+      "description": "string",
+      "examples": ["string"],
+      "missing": ["string"],
+      "suggestions": ["string"]
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "string",
+      "description": "string",
+      "priority": "high|medium|low",
+      "actionItems": ["string"]
+    }
+  ]
+}
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+#### 2. `/api/submit-feedback` (POST)
+This endpoint receives user feedback to trigger adaptive learning and adjust LLM priorities.
 
-**Use GitHub Codespaces**
+**Request Body**:
+```json
+{
+  "analysisId": "string",
+  "feedbackType": "positive|negative",
+  "feedbackText": "string",
+  "idealResumeAccurate": "boolean",
+  "recommendationsHelpful": "boolean"
+}
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🚀 Deployment Requirements
 
-## What technologies are used for this project?
+**To deploy the full application**, you must:
 
-This project is built with:
+1. **Implement Backend Logic**:
+   - Multi-LLM orchestration for the three-stage analysis
+   - LLM priority queue management with adaptive learning
+   - Resume parsing (PDF/DOCX)
+   - Scoring logic with outlier detection
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+2. **Setup Persistence Layer**:
+   - Store LLM priorities (adjustable via feedback)
+   - Save analysis results and feedback
+   - Track user sessions
 
-## How can I deploy this project?
+3. **Configure LLM Access**:
+   - API keys for Gemini, ChatGPT, Grok, and Claude
+   - Rate limiting and error handling
+   - Fallback mechanisms per priority queue
 
-Simply open [Lovable](https://lovable.dev/projects/7e91b56e-34e9-48ad-904d-4cef11466777) and click on Share -> Publish.
+4. **Environment Variables**:
+   ```env
+   GEMINI_API_KEY=your_key
+   OPENAI_API_KEY=your_key
+   GROK_API_KEY=your_key
+   CLAUDE_API_KEY=your_key
+   DATABASE_URL=your_connection_string
+   ```
 
-## Can I connect a custom domain to my Lovable project?
+## 🎨 Design System
 
-Yes, you can!
+The application uses a sophisticated design system with:
+- **Primary Colors**: Deep indigo/purple (#4F46E5) for AI/tech feel
+- **Accent Colors**: Bright cyan (#06B6D4) for interactive elements
+- **Gradients**: Custom gradients for hero sections and CTAs
+- **Success/Warning**: Green and amber for score visualization
+- **Shadows & Effects**: Elegant shadows with glow effects
+- **Smooth Transitions**: Custom easing for all interactions
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📱 Responsive Design
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Fully mobile-responsive with breakpoints for:
+- Mobile: < 768px
+- Tablet: 768px - 1024px
+- Desktop: > 1024px
+
+## 🔐 Input Validation
+
+Client-side validation includes:
+- File type validation (PDF/DOCX only)
+- File size limits (max 10MB)
+- Required field validation
+- Form data sanitization
+
+## 📊 User Flow
+
+1. **Landing** → Hero page with value proposition
+2. **Input** → Multi-step form for data collection
+3. **Processing** → Animated progress with step indicators
+4. **Results** → Comprehensive dashboard with tabs
+5. **Feedback** → User feedback loop for improvement
+6. **Repeat** → Analyze another resume
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## 📦 Tech Stack
+
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Icons**: Lucide React
+- **Routing**: React Router v6
+- **State**: React Hooks
+- **Toast Notifications**: Sonner
+
+## 🤝 Contributing
+
+When implementing the backend:
+1. Follow the API contract specified above
+2. Implement proper error handling and rate limiting
+3. Add logging for debugging multi-LLM calls
+4. Test the scoring logic thoroughly with edge cases
+5. Ensure feedback properly triggers adaptive learning
+
+## 📝 License
+
+This project is part of the Lovable platform.
+
+## 🔗 Resources
+
+- [Lovable Documentation](https://docs.lovable.dev/)
+- [Project URL](https://lovable.dev/projects/7e91b56e-34e9-48ad-904d-4cef11466777)
+
+---
+
+**Note**: The frontend is fully functional with mock data. Backend implementation is required for production deployment with actual AI analysis capabilities.
