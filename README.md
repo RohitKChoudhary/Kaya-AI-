@@ -2,7 +2,7 @@
 
 **AI-powered resume analysis platform concept using multi-LLM architecture**
 
-[View Code](your-github-repo) • [LinkedIn](your-linkedin-url)
+[LinkedIn](https://www.linkedin.com/in/rohit-kumar-49a1a9331/)
 
 ---
 
